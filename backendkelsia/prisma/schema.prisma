@@ -1,0 +1,189 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  FUNCIONARIO
+  USUARIO
+}
+
+enum StatusReserva {
+  CONFIRMADA
+  CANCELADA
+  CONCLUIDA
+}
+
+enum EstadoSala {
+  DISPONIVEL
+  INDISPONIVEL
+  MANUTENCAO
+}
+
+enum EstadoEquipamento {
+  DISPONIVEL
+  INDISPONIVEL
+  MANUTENCAO
+}
+
+enum TipoNotificacao {
+  RESERVA
+  CANCELAMENTO
+  LEMBRETE
+  CONFLITO
+  ALTERACAO
+  ERRO
+  INFORMACAO
+}
+
+model Usuario {
+  id              Int     @id @default(autoincrement())
+  nome            String
+  email           String  @unique
+  telefone        String  @unique
+  senha           String
+  role            Role    @default(USUARIO)
+  ativo           Boolean @default(true)
+  emailVerificado Boolean @default(false)
+
+  deletadoEm                DateTime?
+  refreshToken              String?
+  codigoVerificacao         String?
+  codigoExpiraEm            DateTime?
+  codigoRecuperacao         String?
+  codigoRecuperacaoExpiraEm DateTime?
+
+  dataCriacao DateTime @default(now())
+
+  reservas                      Reserva[]
+  reservasEquipamentos          ReservaEquipamento[]
+  reservasAlteradas             Reserva[]            @relation("ReservaAlteradaPor")
+  reservasEquipamentosAlteradas ReservaEquipamento[] @relation("ReservaEquipamentoAlteradaPor")
+
+  @@map("usuarios")
+}
+
+model TipoSala {
+  id        Int     @id @default(autoincrement())
+  nome      String
+  descricao String?
+
+  salas Sala[]
+
+  @@unique([nome])
+  @@map("tipos_sala")
+}
+
+model Sala {
+  id          Int     @id @default(autoincrement())
+  nome        String
+  capacidade  Int
+  localizacao String
+  descricao   String?
+
+  estado EstadoSala @default(DISPONIVEL)
+
+  horaInicioFuncionamento String
+  horaFimFuncionamento    String
+
+  tipoSalaId Int
+  tipoSala   TipoSala @relation(fields: [tipoSalaId], references: [id])
+
+  reservas Reserva[]
+
+  @@unique([nome])
+  @@map("salas")
+}
+
+model TipoEquipamento {
+  id        Int     @id @default(autoincrement())
+  nome      String
+  descricao String?
+
+  equipamentos Equipamento[]
+
+  @@map("tipos_equipamento")
+}
+
+model Equipamento {
+  id              Int     @id @default(autoincrement())
+  codigo          String  @unique
+  nome            String
+  descricao       String?
+  quantidadeTotal Int
+
+  estado EstadoEquipamento @default(DISPONIVEL)
+
+  tipoEquipamentoId    Int
+  tipoEquipamento      TipoEquipamento      @relation(fields: [tipoEquipamentoId], references: [id])
+  reservasEquipamentos ReservaEquipamento[]
+
+  @@map("equipamentos")
+}
+
+model Reserva {
+  id        Int     @id @default(autoincrement())
+  usuarioId Int
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+
+  salaId Int
+  sala   Sala @relation(fields: [salaId], references: [id])
+
+  data       DateTime
+  horaInicio DateTime
+  horaFim    DateTime
+
+  status     StatusReserva @default(CONFIRMADA)
+  observacao String?
+
+  motivoCancelamento String?
+  motivoEdicao       String?
+  alteradoPorId      Int?
+  alteradoPor        Usuario? @relation("ReservaAlteradaPor", fields: [alteradoPorId], references: [id])
+
+  dataCriacao DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("reservas")
+}
+
+model ReservaEquipamento {
+  id Int @id @default(autoincrement())
+
+  usuarioId Int
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  equipamentoId Int
+
+  equipamento Equipamento @relation(fields: [equipamentoId], references: [id])
+
+  quantidade Int @default(1)
+
+  data DateTime
+
+  horaInicio DateTime
+  horaFim    DateTime
+
+  status StatusReserva @default(CONFIRMADA)
+
+  observacao String?
+
+  motivoCancelamento String?
+  motivoEdicao       String?
+
+  alteradoPorId Int?
+
+  alteradoPor Usuario? @relation("ReservaEquipamentoAlteradaPor", fields: [alteradoPorId], references: [id])
+  dataCriacao DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("reservas_equipamentos")
+}
