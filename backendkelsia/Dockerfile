@@ -6,9 +6,11 @@ RUN npm ci
 
 COPY . .
 
-# Gera o Prisma client e compila o TypeScript
 RUN npx prisma generate
 RUN npm run build
 
+COPY start.sh .
+RUN chmod +x start.sh
+
 EXPOSE 8081
-CMD ["node", "dist/server.js"]
+CMD ["sh", "start.sh"]
