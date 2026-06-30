@@ -6,7 +6,7 @@ import "./jobs/reservaEquipamento.job";
 
 import app from "./app";
 
-const PORTA = process.env.PORT || 3000;
+const PORTA = process.env.PORT || 8081;
 
 app.listen(PORTA, () => {
   console.log(`Servidor a correr na porta ${PORTA}`);

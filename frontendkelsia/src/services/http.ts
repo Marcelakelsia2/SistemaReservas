@@ -3,7 +3,7 @@ import type { Utilizador } from "@/lib/tipos";
 
 export const URL_BASE =
   (import.meta.env.VITE_API_URL as string | undefined) ??
-  "http://localhost:13000/api";
+  "http://localhost:8081/api";
 
 const CHAVE_TOKEN = "rs_token";
 const CHAVE_REFRESH = "rs_refresh";

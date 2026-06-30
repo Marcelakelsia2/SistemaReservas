@@ -3,12 +3,12 @@ services:
   frontend:
     build: ./frontendkelsia
     ports:
-      - "8080:8080"
+      - "8082:8082"
     depends_on:
       - backend
     networks:
       - app-net
-
+      
   backend:
     build: ./backendkelsia
     ports:
