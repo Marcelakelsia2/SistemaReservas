@@ -8,13 +8,11 @@ services:
       - backend
     networks:
       - app-net
-      
+
   backend:
     build: ./backendkelsia
     ports:
       - "8081:8081"
-    env_file:
-      - ./backendkelsia/.env
     depends_on:
       postgres:
         condition: service_healthy
