@@ -12,7 +12,7 @@ const app = express();
 
 // ✅ CORS configurado para produção
 const origens = [
-  process.env.FRONTEND_URL || "http://localhost:5173",
+  process.env.FRONTEND_URL || "http://10.0.0.4:8082",
 ];
 
 app.use(cors({
