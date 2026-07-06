@@ -57,7 +57,7 @@ services:
     container_name: sistema_frontend_container
     restart: always
     ports:
-      - "8082:80"
+      - "8082:8082"
     depends_on:
       - backend-app
     networks:
