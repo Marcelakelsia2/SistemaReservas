@@ -1,7 +1,7 @@
 services:
 
   frontend:
-    build: ./frontendkelsia
+    build: ./frontend
     ports:
       - "8082:8082"
     depends_on:
@@ -10,9 +10,11 @@ services:
       - app-net
 
   backend:
-    build: ./backendkelsia
+    build: ./backend
     ports:
       - "8081:8081"
+    env_file:
+      - ./backend/.env
     depends_on:
       postgres:
         condition: service_healthy
