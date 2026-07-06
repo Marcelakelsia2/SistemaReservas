@@ -1,44 +1,67 @@
 services:
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "8082:8082"
-    depends_on:
-      - backend
-    networks:
-      - app-net
-
-  backend:
-    build: ./backend
-    ports:
-      - "8081:8081"
-    env_file:
-      - ./backend/.env
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - app-net
-
-  postgres:
+  # 1. BANCO DE DADOS (PostgreSQL)
+  database:
     image: postgres:16-alpine
+    container_name: sistema_database_container
+    restart: always
     environment:
-      POSTGRES_DB: sistema_reservas
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 12345678
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=12345678
+      - POSTGRES_DB=sistema_reservas
+    ports:
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
     networks:
-      - app-net
+      - rede-projeto
 
+ backend-app:
+  build: ./backend
+  container_name: sistema_backend_container
+  ports:
+    - "8081:8081"
+  environment:
+    - NODE_ENV=production
+    - PORT=8081
+
+    - DATABASE_URL=postgresql://postgres:12345678@database:5432/sistema_reservas?schema=public
+    - JWT_SECRET=${JWT_SECRET}
+
+    - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+    - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+    - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+
+    - FRONTEND_URL=${FRONTEND_URL}
+    - VITE_API_URL=${VITE_API_URL}
+
+    - SMTP_HOST=${SMTP_HOST}
+    - SMTP_PORT=${SMTP_PORT}
+    - SMTP_SECURE=${SMTP_SECURE}
+    - EMAIL_USER=${EMAIL_USER}
+    - EMAIL_PASS=${EMAIL_PASS}
+    - EMAIL_FROM=${EMAIL_FROM}
+
+    - ADMIN_NAME=${ADMIN_NAME}
+    - ADMIN_EMAIL=${ADMIN_EMAIL}
+    - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+
+  # 3. FRONTEND
+  frontend-app:
+    build: ./frontend
+    container_name: sistema_frontend_container
+    restart: always
+    ports:
+      - "8082:80"
+    depends_on:
+      - backend-app
+    networks:
+      - rede-projeto
+
+# VOLUMES (persistência do PostgreSQL)
 volumes:
   pgdata:
 
+# REDE
 networks:
-  app-net:
+  rede-projeto:
+    driver: bridge
