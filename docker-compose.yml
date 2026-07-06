@@ -5,9 +5,9 @@ services:
     container_name: sistema_database_container
     restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=12345678
-      - POSTGRES_DB=sistema_reservas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: sistema_reservas
     ports:
       - "5432:5432"
     volumes:
@@ -15,35 +15,41 @@ services:
     networks:
       - rede-projeto
 
- backend-app:
-  build: ./backend
-  container_name: sistema_backend_container
-  ports:
-    - "8081:8081"
-  environment:
-    - NODE_ENV=production
-    - PORT=8081
+  # 2. BACKEND
+  backend-app:
+    build: ./backend
+    container_name: sistema_backend_container
+    restart: always
+    ports:
+      - "8081:8081"
+    depends_on:
+      - database
+    environment:
+      NODE_ENV: production
+      PORT: 8081
 
-    - DATABASE_URL=postgresql://postgres:12345678@database:5432/sistema_reservas?schema=public
-    - JWT_SECRET=${JWT_SECRET}
+      DATABASE_URL: postgresql://postgres:12345678@database:5432/sistema_reservas?schema=public
+      JWT_SECRET: ${JWT_SECRET}
 
-    - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-    - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-    - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
 
-    - FRONTEND_URL=${FRONTEND_URL}
-    - VITE_API_URL=${VITE_API_URL}
+      FRONTEND_URL: ${FRONTEND_URL}
+      VITE_API_URL: ${VITE_API_URL}
 
-    - SMTP_HOST=${SMTP_HOST}
-    - SMTP_PORT=${SMTP_PORT}
-    - SMTP_SECURE=${SMTP_SECURE}
-    - EMAIL_USER=${EMAIL_USER}
-    - EMAIL_PASS=${EMAIL_PASS}
-    - EMAIL_FROM=${EMAIL_FROM}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_SECURE: ${SMTP_SECURE}
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_PASS: ${EMAIL_PASS}
+      EMAIL_FROM: ${EMAIL_FROM}
 
-    - ADMIN_NAME=${ADMIN_NAME}
-    - ADMIN_EMAIL=${ADMIN_EMAIL}
-    - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      ADMIN_NAME: ${ADMIN_NAME}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    networks:
+      - rede-projeto
 
   # 3. FRONTEND
   frontend-app:
@@ -57,7 +63,7 @@ services:
     networks:
       - rede-projeto
 
-# VOLUMES (persistência do PostgreSQL)
+# VOLUMES
 volumes:
   pgdata:
 
