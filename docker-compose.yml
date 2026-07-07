@@ -3,11 +3,10 @@ services:
   database:
     image: postgres:16-alpine
     container_name: sistema_database_container
-    restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 12345678
-      POSTGRES_DB: sistema_reservas
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=12345678
+      - POSTGRES_DB=sistema_reservas
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -17,35 +16,32 @@ services:
   backend-app:
     build: ./backend
     container_name: sistema_backend_container
-    restart: always
     ports:
       - "8081:8081"
+    
+    
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:12345678@database:5432/sistema_reservas?schema=public
+      - JWT_SECRET=${JWT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+
+      - FRONTEND_URL=http://10.0.0.4:8082
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_SECURE=${SMTP_SECURE}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - EMAIL_FROM=${EMAIL_FROM}
+
+      - ADMIN_NAME=${ADMIN_NAME}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+
     depends_on:
       - database
-    environment:
-      NODE_ENV: production
-      PORT: 8081
-
-      DATABASE_URL: postgresql://postgres:12345678@database:5432/sistema_reservas?schema=public
-      JWT_SECRET: ${JWT_SECRET}
-
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
-
-      FRONTEND_URL: ${FRONTEND_URL}
-      VITE_API_URL: ${VITE_API_URL}
-
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_PORT: ${SMTP_PORT}
-      SMTP_SECURE: ${SMTP_SECURE}
-      EMAIL_USER: ${EMAIL_USER}
-      EMAIL_PASS: ${EMAIL_PASS}
-      EMAIL_FROM: ${EMAIL_FROM}
-
-      ADMIN_NAME: ${ADMIN_NAME}
-      ADMIN_EMAIL: ${ADMIN_EMAIL}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     networks:
       - rede-projeto
 
@@ -53,9 +49,8 @@ services:
   frontend-app:
     build: ./frontend
     container_name: sistema_frontend_container
-    restart: always
     ports:
-      - "8082:8082"
+      - "8082:80"
     depends_on:
       - backend-app
     networks:

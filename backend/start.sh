@@ -9,7 +9,7 @@ echo "============================="
 
 # --- AGUARDAR PELO POSTGRES ---
 echo "A aguardar que a base de dados (postgres:5432) esteja pronta..."
-while ! nc -z postgres 5432; do
+while ! nc -z database 5432; do
   sleep 1
 done
 echo "Base de dados ativa e online!"
