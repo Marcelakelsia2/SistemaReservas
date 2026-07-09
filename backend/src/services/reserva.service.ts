@@ -106,9 +106,7 @@ validarHorario(inicio, fim);
     );
   }
 
-  console.log("Payload recebido:", data);
-  console.log("Inicio:", inicio);
-  console.log("Fim:", fim);
+  
 
   await verificarConflitoSala(data.salaId, inicio, fim);
 

@@ -20,11 +20,7 @@ async function main() {
     },
   });
 
-  console.log("Admin criado com sucesso:");
-  console.log(`   Nome:  ${admin.nome}`);
-  console.log(`   Email: ${admin.email}`);
-  console.log(`   Role:  ${admin.role}`);
-  console.log(`   Email Verificado: ${admin.emailVerificado}`);
+ 
 }
 
 main()
